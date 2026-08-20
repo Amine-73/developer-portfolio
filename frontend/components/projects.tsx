@@ -1,4 +1,5 @@
 import { projects } from "@/data/projects";
+import Link from "next/link";
 
 export default function Projects() {
   return (
@@ -53,6 +54,12 @@ export default function Projects() {
               </div>
 
               <div className="flex gap-3">
+                 <Link
+                  href={`/projects/${project.slug}`}
+                  className="border border-white/10 rounded-md px-4 py-2 text-sm hover:bg-white/10 transition"
+                >
+                  View Details
+                </Link>
                 <a
                     href={project.github}
                     target="_blank"
