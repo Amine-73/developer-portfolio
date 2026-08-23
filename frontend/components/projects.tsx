@@ -1,7 +1,30 @@
-import { projects } from "@/data/projects";
+// import { projects } from "@/data/projects";
 import Link from "next/link";
 
-export default function Projects() {
+type Project = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  technologies: string[];
+};
+
+
+export default async function Projects() {
+
+  const response = await fetch(
+  "http://backend:8000/api/projects",
+  {
+    cache: "no-store",
+  }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch projects");
+  }
+  
+
+const projects: Project[] = await response.json();
   return (
     <section id="projects" className="px-8 py-24">
       <div className="max-w-6xl mx-auto">

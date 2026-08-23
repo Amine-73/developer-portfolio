@@ -7,15 +7,37 @@ type ProjectPageProps = {
   }>;
 };
 
+export type Project = {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  technologies: string[];
+};
+
 export default async function ProjectPage({
   params,
 }: ProjectPageProps) {
   const { slug } = await params;
 
-  const project = projects.find(
-    (project) => project.slug === slug
+  const response = await fetch(
+  `http://backend:8000/api/projects/${slug}`,
+  {
+    cache: "no-store",
+  }
   );
 
+  if (response.status === 404) {
+    notFound();
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch project");
+  }
+
+  const project: Project = await response.json();
+
+  
   if (!project) {
     notFound();
   }
