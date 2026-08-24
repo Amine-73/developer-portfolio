@@ -17,3 +17,19 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+
+  database:
+    image: mysql:8.4
+    container_name: portfolio-database
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: portfolio
+      MYSQL_USER: portfolio_user
+      MYSQL_PASSWORD: portfolio_password
+    
+    volumes:
+      - portfolio_mysql_data:/var/lib/mysql
+
+volumes:
+  portfolio_mysql_data:
