@@ -7,7 +7,67 @@ require_once __DIR__ . "/../config/database.php";
 $uri = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 $method = $_SERVER["REQUEST_METHOD"];
 
-    if (
+/*
+|--------------------------------------------------------------------------
+| GET /api/projects
+|--------------------------------------------------------------------------
+*/
+
+if ($method === "GET" && $uri === "/api/projects") {
+    $stmt = $pdo->query(
+        "SELECT
+            p.id,
+            p.title,
+            p.slug,
+            p.description,
+            p.github_url,
+            p.demo_url,
+            p.featured,
+            p.created_at,
+            pt.technology
+        FROM projects p
+        LEFT JOIN project_technologies pt
+            ON p.id = pt.project_id
+        ORDER BY p.created_at DESC"
+    );
+
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $projects = [];
+
+    foreach ($rows as $row) {
+        $id = $row["id"];
+
+        if (!isset($projects[$id])) {
+            $projects[$id] = [
+                "id" => (int) $row["id"],
+                "title" => $row["title"],
+                "slug" => $row["slug"],
+                "description" => $row["description"],
+                "github" => $row["github_url"],
+                "demo" => $row["demo_url"],
+                "featured" => (bool) $row["featured"],
+                "technologies" => []
+            ];
+        }
+
+        if ($row["technology"] !== null) {
+            $projects[$id]["technologies"][] = $row["technology"];
+        }
+    }
+
+    echo json_encode(array_values($projects));
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| GET /api/projects/{slug}
+|--------------------------------------------------------------------------
+*/
+
+if (
     $method === "GET" &&
     preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
 ) {
@@ -65,8 +125,295 @@ $method = $_SERVER["REQUEST_METHOD"];
     exit;
 }
 
-    http_response_code(404);
 
-    echo json_encode([
-        "error" => "Route not found"
-    ]);
+/*
+|--------------------------------------------------------------------------
+| POST /api/projects
+|--------------------------------------------------------------------------
+*/
+
+if ($method === "POST" && $uri === "/api/projects") {
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
+
+    if (
+        empty($data["title"]) ||
+        empty($data["slug"]) ||
+        empty($data["description"])
+    ) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Title, slug and description are required"
+        ]);
+
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare(
+            "INSERT INTO projects (
+                title,
+                slug,
+                description,
+                github_url,
+                demo_url,
+                featured
+            )
+            VALUES (?, ?, ?, ?, ?, ?)"
+        );
+
+        $stmt->execute([
+            $data["title"],
+            $data["slug"],
+            $data["description"],
+            $data["github"] ?? null,
+            $data["demo"] ?? null,
+            !empty($data["featured"]) ? 1 : 0
+        ]);
+
+        $projectId = $pdo->lastInsertId();
+
+        if (
+            isset($data["technologies"]) &&
+            is_array($data["technologies"])
+        ) {
+            $technologyStmt = $pdo->prepare(
+                "INSERT INTO project_technologies (
+                    project_id,
+                    technology
+                )
+                VALUES (?, ?)"
+            );
+
+            foreach ($data["technologies"] as $technology) {
+                $technologyStmt->execute([
+                    $projectId,
+                    $technology
+                ]);
+            }
+        }
+
+        $pdo->commit();
+
+        http_response_code(201);
+
+        echo json_encode([
+            "message" => "Project created successfully",
+            "id" => (int) $projectId
+        ]);
+
+        exit;
+
+    } catch (PDOException $e) {
+        $pdo->rollBack();
+
+        http_response_code(500);
+
+        echo json_encode([
+            "error" => "Failed to create project"
+        ]);
+
+        exit;
+    }
+}
+
+
+
+/*
+|--------------------------------------------------------------------------
+|Update part of CRUD with
+|--------------------------------------------------------------------------
+*/
+
+if (
+    $method === "PUT" &&
+    preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
+) {
+    $slug = $matches[1];
+
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
+
+    if (
+        empty($data["title"]) ||
+        empty($data["description"])
+    ) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Title and description are required"
+        ]);
+
+        exit;
+    }
+
+    try {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare(
+            "SELECT id FROM projects WHERE slug = ?"
+        );
+
+        $stmt->execute([$slug]);
+
+        $project = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$project) {
+            $pdo->rollBack();
+
+            http_response_code(404);
+
+            echo json_encode([
+                "error" => "Project not found"
+            ]);
+
+            exit;
+        }
+
+        $projectId = $project["id"];
+
+        $updateStmt = $pdo->prepare(
+            "UPDATE projects
+             SET
+                title = ?,
+                description = ?,
+                github_url = ?,
+                demo_url = ?,
+                featured = ?
+             WHERE id = ?"
+        );
+
+        $updateStmt->execute([
+            $data["title"],
+            $data["description"],
+            $data["github"] ?? null,
+            $data["demo"] ?? null,
+            !empty($data["featured"]) ? 1 : 0,
+            $projectId
+        ]);
+
+        if (
+            isset($data["technologies"]) &&
+            is_array($data["technologies"])
+        ) {
+            $deleteTechStmt = $pdo->prepare(
+                "DELETE FROM project_technologies
+                 WHERE project_id = ?"
+            );
+
+            $deleteTechStmt->execute([$projectId]);
+
+            $insertTechStmt = $pdo->prepare(
+                "INSERT INTO project_technologies (
+                    project_id,
+                    technology
+                )
+                VALUES (?, ?)"
+            );
+
+            foreach ($data["technologies"] as $technology) {
+                $insertTechStmt->execute([
+                    $projectId,
+                    $technology
+                ]);
+            }
+        }
+
+        $pdo->commit();
+
+        echo json_encode([
+            "message" => "Project updated successfully"
+        ]);
+
+        exit;
+
+    } catch (PDOException $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        http_response_code(500);
+
+        echo json_encode([
+            "error" => "Failed to update project"
+        ]);
+
+        exit;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+|CRUD operation is DELETE.
+|--------------------------------------------------------------------------
+*/
+
+
+if (
+    $method === "DELETE" &&
+    preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
+) {
+    $slug = $matches[1];
+
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT id FROM projects WHERE slug = ?"
+        );
+
+        $stmt->execute([$slug]);
+
+        $project = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$project) {
+            http_response_code(404);
+
+            echo json_encode([
+                "error" => "Project not found"
+            ]);
+
+            exit;
+        }
+
+        $deleteStmt = $pdo->prepare(
+            "DELETE FROM projects WHERE id = ?"
+        );
+
+        $deleteStmt->execute([
+            $project["id"]
+        ]);
+
+        echo json_encode([
+            "message" => "Project deleted successfully"
+        ]);
+
+        exit;
+
+    } catch (PDOException $e) {
+        http_response_code(500);
+
+        echo json_encode([
+            "error" => "Failed to delete project"
+        ]);
+
+        exit;
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| 404
+|--------------------------------------------------------------------------
+*/
+
+http_response_code(404);
+
+echo json_encode([
+    "error" => "Route not found"
+]);
