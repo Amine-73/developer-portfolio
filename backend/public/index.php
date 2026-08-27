@@ -1,6 +1,19 @@
+
+
 <?php
 
+session_start();
+
+header("Access-Control-Allow-Origin: http://localhost:3000");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json");
+
+if ($_SERVER["REQUEST_METHOD"] === "OPTIONS") {
+    http_response_code(204);
+    exit;
+}
 
 require_once __DIR__ . "/../config/database.php";
 
@@ -14,6 +27,7 @@ $method = $_SERVER["REQUEST_METHOD"];
 */
 
 if ($method === "GET" && $uri === "/api/projects") {
+    
     $stmt = $pdo->query(
         "SELECT
             p.id,
@@ -71,6 +85,7 @@ if (
     $method === "GET" &&
     preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
 ) {
+    
     $slug = $matches[1];
 
     $stmt = $pdo->prepare(
@@ -133,6 +148,7 @@ if (
 */
 
 if ($method === "POST" && $uri === "/api/projects") {
+    requireAdmin();
     $data = json_decode(
         file_get_contents("php://input"),
         true
@@ -226,14 +242,16 @@ if ($method === "POST" && $uri === "/api/projects") {
 
 /*
 |--------------------------------------------------------------------------
-|Update part of CRUD with
+|Update part of CRUD 
 |--------------------------------------------------------------------------
 */
 
 if (
     $method === "PUT" &&
     preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
+    
 ) {
+    requireAdmin();
     $slug = $matches[1];
 
     $data = json_decode(
@@ -351,7 +369,7 @@ if (
 
 /*
 |--------------------------------------------------------------------------
-|CRUD operation is DELETE.
+|CRUD operation  DELETE.
 |--------------------------------------------------------------------------
 */
 
@@ -359,7 +377,9 @@ if (
 if (
     $method === "DELETE" &&
     preg_match("#^/api/projects/([^/]+)$#", $uri, $matches)
+    
 ) {
+    requireAdmin(); 
     $slug = $matches[1];
 
     try {
@@ -400,6 +420,114 @@ if (
 
         echo json_encode([
             "error" => "Failed to delete project"
+        ]);
+
+        exit;
+    }
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| /api/login
+|--------------------------------------------------------------------------
+*/
+
+
+
+
+if ($method === "POST" && $uri === "/api/login") {
+
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
+
+    if (
+        empty($data["email"]) ||
+        empty($data["password"])
+    ) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Email and password are required"
+        ]);
+
+        exit;
+    }
+
+    $stmt = $pdo->prepare(
+        "SELECT id, email, password
+         FROM admins
+         WHERE email = ?"
+    );
+
+    $stmt->execute([
+        $data["email"]
+    ]);
+
+    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (
+        !$admin ||
+        !password_verify(
+            $data["password"],
+            $admin["password"]
+        )
+    ) {
+        http_response_code(401);
+
+        echo json_encode([
+            "error" => "Invalid email or password"
+        ]);
+
+        exit;
+    }
+
+    // Create the authenticated session ONLY after verification
+    $_SESSION["admin_id"] = $admin["id"];
+    $_SESSION["admin_email"] = $admin["email"];
+
+    echo json_encode([
+        "message" => "Login successful",
+        "admin" => [
+            "id" => (int) $admin["id"],
+            "email" => $admin["email"]
+        ]
+    ]);
+
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| authenticated endpoint
+|--------------------------------------------------------------------------
+*/
+
+
+
+iif ($method === "GET" && $uri === "/api/me") {
+    requireAdmin();
+
+    echo json_encode([
+        "admin" => [
+            "id" => (int) $_SESSION["admin_id"],
+            "email" => $_SESSION["admin_email"]
+        ]
+    ]);
+
+    exit;
+}
+
+function requireAdmin(): void
+{
+    if (empty($_SESSION["admin_id"])) {
+        http_response_code(401);
+
+        echo json_encode([
+            "error" => "Authentication required"
         ]);
 
         exit;
