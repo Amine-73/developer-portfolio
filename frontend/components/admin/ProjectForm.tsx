@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 
+
 type Project = {
   id: number;
   title: string;
@@ -60,6 +61,7 @@ export default function ProjectForm({
         headers: {
             "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(projectData),
         });
 

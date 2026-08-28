@@ -1,6 +1,10 @@
-
+"use client";
 // pannel admin for Add / Edit / Delete
 import DeleteProjectButton from "@/components/admin/DeleteProjectButton";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import LogoutButton from "@/components/admin/LogoutButton";
+
 
 type Project = {
   id: number;
@@ -11,19 +15,53 @@ type Project = {
   featured: boolean;
 };
 
-export default async function AdminProjectsPage() {
-  const response = await fetch(
-    "http://backend:8000/api/projects",
-    {
-      cache: "no-store",
-    }
-  );
+export default function AdminProjectsPage() {
+  const router = useRouter();
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch projects");
+  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    async function loadPage() {
+      // 1. Check authentication
+      const authResponse = await fetch(
+        "http://localhost:8000/api/me",
+        {
+          credentials: "include",
+        }
+      );
+
+      if (!authResponse.ok) {
+        router.replace("/admin/login");
+        return;
+      }
+
+      // 2. Fetch projects
+      const projectsResponse = await fetch(
+        "http://localhost:8000/api/projects"
+      );
+
+      const projectsData = await projectsResponse.json();
+
+      setProjects(projectsData);
+
+      // 3. Page is ready
+      setLoading(false);
+    }
+
+    loadPage();
+  }, [router]);
+
+
+  if (loading) {
+  return (
+    <main className="min-h-screen flex items-center justify-center">
+      <p>Checking authentication...</p>
+    </main>
+  );
   }
 
-  const projects: Project[] = await response.json();
+ 
 
   return (
     <main className="min-h-screen px-8 py-16">
@@ -45,6 +83,7 @@ export default async function AdminProjectsPage() {
           >
             Add Project
           </a>
+          <LogoutButton />
         </div>
 
         <div className="space-y-4">

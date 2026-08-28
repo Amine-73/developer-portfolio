@@ -29,6 +29,7 @@ export default function DeleteProjectButton({
         `http://localhost:8000/api/projects/${slug}`,
         {
           method: "DELETE",
+          credentials: "include",
         }
       );
 

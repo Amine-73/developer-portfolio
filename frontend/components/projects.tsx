@@ -6,9 +6,11 @@ type Project = {
   title: string;
   slug: string;
   description: string;
+  github: string | null;
+  demo: string | null;
+  featured: boolean;
   technologies: string[];
 };
-
 
 export default async function Projects() {
 
@@ -24,7 +26,13 @@ export default async function Projects() {
   }
   
 
-const projects: Project[] = await response.json();
+  const projects: Project[] = await response.json();
+
+  const featuredProjects = projects.filter(
+    (project) => project.featured
+  );
+
+
   return (
     <section id="projects" className="px-8 py-24">
       <div className="max-w-6xl mx-auto">
@@ -35,7 +43,7 @@ const projects: Project[] = await response.json();
         </h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+          {featuredProjects.map((project) => (
             <article
               key={project.id}
               className="
@@ -83,39 +91,43 @@ const projects: Project[] = await response.json();
                 >
                   View Details
                 </Link>
-                <a
+                {project.github && (
+                  <a
                     href={project.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
-                    border border-white/10
-                    rounded-md
-                    px-4 py-2
-                    text-sm
-                    hover:bg-white/10
-                    transition
+                      border border-white/10
+                      rounded-md
+                      px-4 py-2
+                      text-sm
+                      hover:bg-white/10
+                      transition
                     "
-                >
+                  >
                     GitHub
-                </a>
+                  </a>
+                )}
 
-                <a
+                {project.demo && (
+                  <a
                     href={project.demo}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
-                    bg-white
-                    text-black
-                    rounded-md
-                    px-4 py-2
-                    text-sm
-                    font-medium
-                    hover:bg-gray-200
-                    transition
+                      bg-white
+                      text-black
+                      rounded-md
+                      px-4 py-2
+                      text-sm
+                      font-medium
+                      hover:bg-gray-200
+                      transition
                     "
-                >
+                  >
                     Live Demo
-                </a>
+                  </a>
+                )}
                 </div>
             </article>
           ))}

@@ -1,5 +1,3 @@
-
-
 <?php
 
 session_start();
@@ -446,7 +444,7 @@ if ($method === "POST" && $uri === "/api/login") {
     if (
         empty($data["email"]) ||
         empty($data["password"])
-    ) {
+    ) { 
         http_response_code(400);
 
         echo json_encode([
@@ -502,17 +500,17 @@ if ($method === "POST" && $uri === "/api/login") {
 
 /*
 |--------------------------------------------------------------------------
-| authenticated endpoint
+| authenticated endpoint // /api/me route
 |--------------------------------------------------------------------------
 */
 
 
 
-iif ($method === "GET" && $uri === "/api/me") {
+if ($method === "GET" && $uri === "/api/me") {
     requireAdmin();
 
     echo json_encode([
-        "admin" => [
+        "admin" => [    
             "id" => (int) $_SESSION["admin_id"],
             "email" => $_SESSION["admin_email"]
         ]
@@ -532,6 +530,23 @@ function requireAdmin(): void
 
         exit;
     }
+}
+
+/*
+|--------------------------------------------------------------------------
+| POST /api/logout
+|--------------------------------------------------------------------------
+*/
+
+if ($method === "POST" && $uri === "/api/logout") {
+    session_unset();
+    session_destroy();
+
+    echo json_encode([
+        "message" => "Logged out successfully"
+    ]);
+
+    exit;
 }
 
 /*
