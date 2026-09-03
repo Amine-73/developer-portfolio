@@ -1,4 +1,3 @@
-import { projects } from "@/data/projects";
 import { notFound } from "next/navigation";
 
 type ProjectPageProps = {
@@ -12,6 +11,8 @@ export type Project = {
   title: string;
   slug: string;
   description: string;
+  github: string | null;
+  demo: string | null;
   technologies: string[];
 };
 
@@ -79,23 +80,27 @@ export default async function ProjectPage({
           </div>
 
           <div className="flex gap-4">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="border border-white/10 px-5 py-3 rounded-md hover:bg-white/10 transition"
-            >
-              GitHub
-            </a>
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="border border-white/10 px-5 py-3 rounded-md hover:bg-white/10 transition"
+              >
+                GitHub
+              </a>
+            )}
 
-            <a
-              href={project.demo}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white text-black px-5 py-3 rounded-md hover:bg-gray-200 transition"
-            >
-              Live Demo
-            </a>
+             {project.demo && (
+                <a
+                  href={project.demo}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white text-black px-5 py-3 rounded-md hover:bg-gray-200 transition"
+                >
+                  Live Demo
+                </a>
+              )}
           </div>
         </div>
       </div>
