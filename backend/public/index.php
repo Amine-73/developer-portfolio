@@ -189,17 +189,19 @@ if ($method === "POST" && $uri === "/api/projects") {
                 title,
                 slug,
                 description,
+		image_url,
                 github_url,
                 demo_url,
                 featured
             )
-            VALUES (?, ?, ?, ?, ?, ?)"
+            VALUES (?, ?, ?, ?, ?, ?, ?)"
         );
 
         $stmt->execute([
             $data["title"],
             $data["slug"],
             $data["description"],
+	    $data["image_ulr"] ?? null,
             $data["github"] ?? null,
             $data["demo"] ?? null,
             !empty($data["featured"]) ? 1 : 0
@@ -315,6 +317,7 @@ if (
              SET
                 title = ?,
                 description = ?,
+                image_url = ?,
                 github_url = ?,
                 demo_url = ?,
                 featured = ?
@@ -324,6 +327,7 @@ if (
         $updateStmt->execute([
             $data["title"],
             $data["description"],
+            $data["image_url"] ?? null,
             $data["github"] ?? null,
             $data["demo"] ?? null,
             !empty($data["featured"]) ? 1 : 0,

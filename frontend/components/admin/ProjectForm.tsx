@@ -9,6 +9,7 @@ type Project = {
   title: string;
   slug: string;
   description: string;
+  image_url: string | null;
   github: string | null;
   demo: string | null;
   featured: boolean;
@@ -45,6 +46,7 @@ export default function ProjectForm({
       title: form.get("title"),
       slug: form.get("slug"),
       description: form.get("description"),
+      image_url: form.get("image_url"),
       github: form.get("github"),
       demo: form.get("demo"),
       featured: form.get("featured") === "on",
@@ -131,6 +133,24 @@ export default function ProjectForm({
         className="w-full border border-white/10 bg-white/[0.02] rounded-md px-4 py-3"
         />
       </div>
+
+      <div>
+      <label className="block mb-2">
+        Image URL
+      </label>
+
+      <input
+        name="image_url"
+        defaultValue={project?.image_url ?? ""}
+        type="url"
+        placeholder="https://example.com/project-image.jpg"
+        className="w-full border border-white/10 bg-white/[0.02] rounded-md px-4 py-3"
+      />
+
+      <p className="text-xs text-gray-500 mt-2">
+        URL of the project screenshot or preview image.
+      </p>
+    </div>
 
       <div>
         <label className="block mb-2">
