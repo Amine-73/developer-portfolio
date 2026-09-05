@@ -18,7 +18,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 border-b border-white/10 bg-black/80 backdrop-blur-md">
       <div className="max-w-6xl mx-auto px-8 py-5 flex items-center justify-between">
         <a href="#home" className="text-xl font-bold">
-          {"<Amine />"}
+          {"<Amine_73/>"}
         </a>
 
         <div className="hidden md:flex items-center gap-6 text-sm text-gray-400">

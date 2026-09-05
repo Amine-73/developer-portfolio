@@ -6,6 +6,7 @@ type Project = {
   title: string;
   slug: string;
   description: string;
+  image_url: string | null;
   github: string | null;
   demo: string | null;
   featured: boolean;

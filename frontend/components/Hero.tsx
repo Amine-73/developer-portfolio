@@ -32,7 +32,7 @@ export default function Hero() {
             </a>
 
             <a
-              href="/cv.pdf"
+              href="/Resume_A_C.pdf"
               className="border border-white/20 px-6 py-3 rounded-md font-medium hover:bg-white/10 transition"
             >
               Download CV

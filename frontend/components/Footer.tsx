@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="border-t border-white/10 px-8 py-8">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-4 justify-between items-center">
         <p className="font-semibold">
-          {"<Amine />"}
+          {"<Amine_73/>"}
         </p>
 
         <p className="text-sm text-gray-500">
