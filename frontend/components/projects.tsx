@@ -6,6 +6,7 @@ type Project = {
   title: string;
   slug: string;
   description: string;
+  image_url: string | null;
   github: string | null;
   demo: string | null;
   featured: boolean;
@@ -60,9 +61,15 @@ export default async function Projects() {
             "
             >
               <div className="h-40 bg-white/5 rounded-lg mb-6 flex items-center justify-center overflow-hidden">
-            <span className="text-gray-600 text-sm">
-                Project Preview
-            </span>
+            {project.image_url ? (
+                  <img
+                    src={project.image_url}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <span className="text-gray-600 text-sm">Project Preview</span>
+                )}
             </div>
 
               <h3 className="text-xl font-semibold mb-3">

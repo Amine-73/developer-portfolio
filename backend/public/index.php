@@ -120,13 +120,24 @@ if (
         exit;
     }
 
+    // $project = [
+    //     "id" => (int) $rows[0]["id"],
+    //     "title" => $rows[0]["title"],
+    //     "slug" => $rows[0]["slug"],
+    //     "description" => $row["description"],
+    //     "image_url" => $row["image_url"],
+    //     "github" => $row["github_url"],
+    //     "demo" => $rows[0]["demo_url"],
+    //     "featured" => (bool) $rows[0]["featured"],
+    //     "technologies" => []
+    // ];
     $project = [
         "id" => (int) $rows[0]["id"],
         "title" => $rows[0]["title"],
         "slug" => $rows[0]["slug"],
-        "description" => $row["description"],
-        "image_url" => $row["image_url"],
-        "github" => $row["github_url"],
+        "description" => $rows[0]["description"],
+        "image_url" => $rows[0]["image_url"],
+        "github" => $rows[0]["github_url"],
         "demo" => $rows[0]["demo_url"],
         "featured" => (bool) $rows[0]["featured"],
         "technologies" => []

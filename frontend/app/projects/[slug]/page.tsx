@@ -11,6 +11,7 @@ export type Project = {
   title: string;
   slug: string;
   description: string;
+  image_url: string | null;
   github: string | null;
   demo: string | null;
   technologies: string[];
@@ -74,9 +75,16 @@ export default async function ProjectPage({
           </div>
 
           <div className="h-80 border border-white/10 bg-white/[0.02] rounded-xl flex items-center justify-center mb-10">
-            <span className="text-gray-500">
-              Project Preview
-            </span>
+            {project.image_url ? (
+              
+                  <img
+                    src={project.image_url}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <span className="text-gray-600 text-sm">Project Preview</span>
+                )}
           </div>
 
           <div className="flex gap-4">
