@@ -1,7 +1,64 @@
+"use client";
+
+import { FormEvent, useState } from "react";
+
 export default function Contact() {
+  const [status, setStatus] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setLoading(true);
+    setStatus("");
+
+    const form = event.currentTarget;
+
+    const formData = new FormData(form);
+
+    const data = {
+      name: formData.get("name"),
+      email: formData.get("email"),
+      message: formData.get("message"),
+    };
+
+    try {
+      const response = await fetch(
+        "http://localhost:8000/api/contact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        setStatus(result.error || "Something went wrong.");
+        return;
+      }
+
+      setStatus("Message sent successfully!");
+
+      form.reset();
+    } catch (error) {
+      console.error(error);
+
+      setStatus(
+        "Unable to send your message. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section id="contact" className="px-6 py-24 md:px-8">
       <div className="max-w-6xl mx-auto">
+
         <p className="text-sm text-gray-500 mb-3">
           05 — Contact
         </p>
@@ -51,44 +108,132 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Right side */}
-          <div className="flex flex-col justify-center">
-            <div className="border border-white/10 rounded-xl p-6 bg-black/20">
+          {/* Contact form */}
+          <div>
+            <form
+              onSubmit={handleSubmit}
+              className="border border-white/10 rounded-xl p-6 bg-black/20 space-y-5"
+            >
 
-              <p className="text-sm text-gray-500 mb-2">
-                Have a project in mind?
-              </p>
+              {/* Name */}
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm text-gray-400 mb-2"
+                >
+                  Name
+                </label>
 
-              <h3 className="text-2xl font-semibold mb-4">
-                Get in touch
-              </h3>
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  placeholder="Your name"
+                  className="
+                    w-full
+                    rounded-md
+                    border border-white/10
+                    bg-white/[0.03]
+                    px-4 py-3
+                    text-white
+                    placeholder:text-gray-600
+                    outline-none
+                    focus:border-white/30
+                    transition
+                  "
+                />
+              </div>
 
-              <p className="text-gray-400 text-sm leading-7 mb-6">
-                Send me an email and tell me a little about your
-                project, opportunity, or idea.
-              </p>
+              {/* Email */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm text-gray-400 mb-2"
+                >
+                  Email
+                </label>
 
-              <a
-                href="mailto:aminchana.besiness@gmail.com"
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  className="
+                    w-full
+                    rounded-md
+                    border border-white/10
+                    bg-white/[0.03]
+                    px-4 py-3
+                    text-white
+                    placeholder:text-gray-600
+                    outline-none
+                    focus:border-white/30
+                    transition
+                  "
+                />
+              </div>
+
+              {/* Message */}
+              <div>
+                <label
+                  htmlFor="message"
+                  className="block text-sm text-gray-400 mb-2"
+                >
+                  Message
+                </label>
+
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={5}
+                  placeholder="Tell me about your project..."
+                  className="
+                    w-full
+                    rounded-md
+                    border border-white/10
+                    bg-white/[0.03]
+                    px-4 py-3
+                    text-white
+                    placeholder:text-gray-600
+                    outline-none
+                    focus:border-white/30
+                    transition
+                    resize-none
+                  "
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
                 className="
-                  inline-flex
-                  items-center
-                  justify-center
                   w-full
+                  rounded-md
                   bg-white
                   text-black
-                  px-6
-                  py-3
-                  rounded-md
+                  px-6 py-3
                   font-medium
                   hover:bg-gray-200
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
                   transition
                 "
               >
-                Send me an email
-              </a>
+                {loading ? "Sending..." : "Send Message"}
+              </button>
 
-            </div>
+              {/* Status */}
+              {status && (
+                <p className="text-sm text-gray-400">
+                  {status}
+                </p>
+              )}
+
+            </form>
           </div>
 
         </div>

@@ -505,6 +505,35 @@ if ($method === "POST" && $uri === "/api/contact") {
     exit;
 }
 
+/*
+|--------------------------------------------------------------------------
+|  GET /api/contact
+|--------------------------------------------------------------------------
+*/
+
+
+if ($method === "GET" && $uri === "/api/contact") {
+
+    requireAdmin();
+
+    $stmt = $pdo->query(
+        "SELECT
+            id,
+            name,
+            email,
+            message,
+            created_at
+         FROM contact_messages
+         ORDER BY created_at DESC"
+    );
+
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    echo json_encode($messages);
+
+    exit;
+}
+
 
 /*
 |--------------------------------------------------------------------------
