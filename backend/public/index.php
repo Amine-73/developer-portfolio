@@ -443,6 +443,68 @@ if (
     }
 }
 
+/*
+|--------------------------------------------------------------------------
+| //Contact
+|--------------------------------------------------------------------------
+*/
+
+
+if ($method === "POST" && $uri === "/api/contact") {
+
+    $data = json_decode(
+        file_get_contents("php://input"),
+        true
+    );
+
+    if (
+        empty($data["name"]) ||
+        empty($data["email"]) ||
+        empty($data["message"])
+    ) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Name, email and message are required"
+        ]);
+
+        exit;
+    }
+
+    if (!filter_var($data["email"], FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Invalid email address"
+        ]);
+
+        exit;
+    }
+
+    $stmt = $pdo->prepare(
+        "INSERT INTO contact_messages (
+            name,
+            email,
+            message
+        )
+        VALUES (?, ?, ?)"
+    );
+
+    $stmt->execute([
+        trim($data["name"]),
+        trim($data["email"]),
+        trim($data["message"])
+    ]);
+
+    http_response_code(201);
+
+    echo json_encode([
+        "message" => "Message sent successfully"
+    ]);
+
+    exit;
+}
+
 
 /*
 |--------------------------------------------------------------------------
