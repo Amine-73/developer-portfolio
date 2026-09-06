@@ -72,6 +72,38 @@ Coming soon.
 - Git
 - GitHub
 
+## 🐳 Running the Project with Docker
+
+  1. Clone the repository
+     
+  git clone https://github.com/Amine-73/developer-portfolio.git
+  
+  2. Enter the project
+     
+  cd developer-portfolio
+  
+  3. Start the containers
+     
+  docker compose up -d
+  
+  4. Check running containers
+     
+  docker compose ps
+  
+  5. Open the application
+      
+  Frontend:
+      
+  http://localhost:3000
+        
+  Admin login:
+        
+  http://localhost:3000/admin/login
+        
+  Backend API:
+        
+  http://localhost:8000
+
 ## 🏗️ Architecture
 
 The project follows a simple full-stack architecture:
@@ -96,26 +128,3 @@ The project follows a simple full-stack architecture:
                     │      Database       │
                     └─────────────────────┘
 
-## 🐳 Running the Project with Docker
-
-      1. Clone the repository
-      git clone https://github.com/Amine-73/developer-portfolio.git
-      2. Enter the project
-      cd developer-portfolio
-      3. Start the containers
-      docker compose up -d
-      4. Check running containers
-      docker compose ps
-      5. Open the application
-      
-      Frontend:
-      
-      http://localhost:3000
-      
-      Admin login:
-      
-      http://localhost:3000/admin/login
-      
-      Backend API:
-      
-      http://localhost:8000
