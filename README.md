@@ -10,7 +10,12 @@ Coming soon.
 
 ## 📸 Preview
 
-Screenshots will be added soon.
+<img width="1348" height="648" alt="image" src="https://github.com/user-attachments/assets/1f17c45f-7f20-480e-9800-a451d06e33f6" />
+
+
+<img width="1348" height="648" alt="image" src="https://github.com/user-attachments/assets/e0ef03ad-c0ad-4603-8f80-e79b76dbb0d2" />
+
+
 
 ## ✨ Features
 
