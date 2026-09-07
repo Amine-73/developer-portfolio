@@ -78,7 +78,7 @@ export default async function Projects() {
               >
                 <div className="aspect-video bg-white/[0.03]">
                   {project.image_url ? (
-                    <img
+                      <img
                       src={project.image_url}
                       alt={`${project.title} project preview`}
                       className="
