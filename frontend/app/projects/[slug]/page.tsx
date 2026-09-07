@@ -44,6 +44,7 @@ export default async function ProjectPage({
     notFound();
   }
 
+
   return (
   <main className="min-h-screen px-6 py-20 md:px-8 md:py-24">
     <div className="max-w-6xl mx-auto">
@@ -123,6 +124,7 @@ export default async function ProjectPage({
           )}
         </div>
       </div>
+      
 
       {/* Project information */}
       <div className="grid md:grid-cols-[1fr_auto] gap-10 mt-12">
