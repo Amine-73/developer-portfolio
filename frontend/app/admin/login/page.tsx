@@ -13,7 +13,7 @@ export default function AdminLoginPage() {
     const email = form.get("email");
     const password = form.get("password");
 
-    const response = await fetch("http://localhost:8000/api/login", {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
     method: "POST",
     headers: {
         "Content-Type": "application/json",

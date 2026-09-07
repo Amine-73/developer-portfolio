@@ -20,7 +20,7 @@ export default function MessagesPage() {
   useEffect(() => {
     async function loadMessages() {
       const authResponse = await fetch(
-        "http://localhost:8000/api/me",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/me`,
         {
           credentials: "include",
         }
@@ -32,7 +32,7 @@ export default function MessagesPage() {
       }
 
       const response = await fetch(
-        "http://localhost:8000/api/contact",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/contact`,
         {
           credentials: "include",
         }
@@ -65,6 +65,10 @@ export default function MessagesPage() {
             <h1 className="text-3xl md:text-4xl font-bold">
               Messages
             </h1>
+
+            <p className="text-sm text-gray-500 mt-2">
+              {messages.length} {messages.length === 1 ? "message" : "messages"}
+            </p>
           </div>
 
           <a
@@ -128,6 +132,14 @@ export default function MessagesPage() {
                 <p className="text-gray-300 leading-7 mt-5 whitespace-pre-wrap">
                   {message.message}
                 </p>
+                <div className="mt-6 pt-5 border-t border-white/10">
+                <a
+                  href={`mailto:${message.email}?subject=Re: Your message`}
+                  className="inline-flex items-center rounded-md bg-white text-black px-4 py-2 text-sm font-medium hover:bg-gray-200 transition"
+                >
+                  Reply
+                </a>
+              </div>
               </article>
             ))}
           </div>

@@ -11,7 +11,7 @@ export default function LogoutButton() {
     setLoading(true);
 
     const response = await fetch(
-      "http://localhost:8000/api/logout",
+      `${process.env.NEXT_PUBLIC_API_URL}/api/logout`,
       {
         method: "POST",
         credentials: "include",

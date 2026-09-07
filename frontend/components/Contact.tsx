@@ -24,7 +24,7 @@ export default function Contact() {
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/contact",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/contact`,
         {
           method: "POST",
           headers: {

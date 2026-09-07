@@ -25,7 +25,7 @@ export default function AdminProjectsPage() {
     async function loadPage() {
       // 1. Check authentication
       const authResponse = await fetch(
-        "http://localhost:8000/api/me",
+        `${process.env.NEXT_PUBLIC_API_URL}/api/me`,
         {
           credentials: "include",
         }
@@ -38,7 +38,7 @@ export default function AdminProjectsPage() {
 
       // 2. Fetch projects
       const projectsResponse = await fetch(
-        "http://localhost:8000/api/projects"
+        `${process.env.NEXT_PUBLIC_API_URL}/api/projects`
       );
 
       const projectsData = await projectsResponse.json();
@@ -67,24 +67,31 @@ export default function AdminProjectsPage() {
     <main className="min-h-screen px-8 py-16">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between mb-10">
-          <div>
-            <p className="text-sm text-gray-500 mb-2">
-              Admin
-            </p>
+  <div>
+    <p className="text-sm text-gray-500 mb-2">Admin</p>
+    <h1 className="text-4xl font-bold">Projects</h1>
+  </div>
 
-            <h1 className="text-4xl font-bold">
-              Projects
-            </h1>
-          </div>
+  <div className="flex items-center gap-3">
+    
+     <a href="/admin/messages"
+      className="px-4 py-2.5 rounded-md text-sm font-medium text-gray-300 border border-white/15 hover:border-white/30 hover:text-white transition-colors"
+    >
+      Messages
+    </a>
 
-          <a
-            href="/admin/projects/new"
-            className="bg-white text-black px-5 py-3 rounded-md"
-          >
-            Add Project
-          </a>
-          <LogoutButton />
-        </div>
+    
+     <a href="/admin/projects/new"
+      className="px-4 py-2.5 rounded-md text-sm font-medium bg-white text-black hover:bg-gray-200 transition-colors"
+    >
+      Add Project
+    </a>
+
+    <div className="w-px h-6 bg-white/10 mx-1" />
+
+    <LogoutButton />
+  </div>
+</div>
 
         <div className="space-y-4">
           {projects.map((project) => (

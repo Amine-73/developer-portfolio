@@ -55,8 +55,8 @@ export default function ProjectForm({
 
     try {
       const url = isEditing
-        ? `http://localhost:8000/api/projects/${project!.slug}`
-        : "http://localhost:8000/api/projects";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/projects/${project!.slug}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/projects`;
 
     const response = await fetch(url, {
         method: isEditing ? "PUT" : "POST",

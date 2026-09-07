@@ -26,7 +26,7 @@ export default function DeleteProjectButton({
 
     try {
       const response = await fetch(
-        `http://localhost:8000/api/projects/${slug}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/projects/${slug}`,
         {
           method: "DELETE",
           credentials: "include",

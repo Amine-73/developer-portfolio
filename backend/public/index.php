@@ -1,5 +1,11 @@
 <?php
 
+session_set_cookie_params([
+    "httponly" => true,
+    "secure" => false,
+    "samesite" => "Lax"
+]);
+
 session_start();
 
 header("Access-Control-Allow-Origin: http://localhost:3000");
@@ -452,10 +458,39 @@ if (
 
 if ($method === "POST" && $uri === "/api/contact") {
 
+    $ip = $_SERVER["REMOTE_ADDR"] ?? "unknown";
+    $rateLimitFile = "/tmp/contact_" . md5($ip) . ".txt";
+
+    if (file_exists($rateLimitFile)) {
+        $lastRequest = (int) file_get_contents($rateLimitFile);
+
+        if (time() - $lastRequest < 60) {
+            http_response_code(429);
+
+            echo json_encode([
+                "error" => "Please wait before sending another message"
+            ]);
+
+            exit;
+        }
+    }
+
+    file_put_contents($rateLimitFile, (string) time());
+
     $data = json_decode(
-        file_get_contents("php://input"),
-        true
+    file_get_contents("php://input"),
+    true
     );
+
+    if (!is_array($data)) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Invalid JSON payload"
+        ]);
+
+        exit;
+    }
 
     if (
         empty($data["name"]) ||
@@ -476,6 +511,20 @@ if ($method === "POST" && $uri === "/api/contact") {
 
         echo json_encode([
             "error" => "Invalid email address"
+        ]);
+
+        exit;
+    }
+
+    if (
+    strlen(trim($data["name"])) > 100 ||
+    strlen(trim($data["email"])) > 255 ||
+    strlen(trim($data["message"])) > 5000
+    ) {
+        http_response_code(400);
+
+        echo json_encode([
+            "error" => "Input exceeds the allowed length"
         ]);
 
         exit;
