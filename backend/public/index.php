@@ -187,6 +187,12 @@ if ($method === "POST" && $uri === "/api/projects") {
         exit;
     }
 
+    $slug = strtolower(trim($data["slug"]));
+    $slug = preg_replace('/\s+/', '-', $slug);
+    $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
+    $slug = preg_replace('/-+/', '-', $slug);
+    $slug = trim($slug, '-');
+
     try {
         $pdo->beginTransaction();
 
@@ -195,7 +201,7 @@ if ($method === "POST" && $uri === "/api/projects") {
                 title,
                 slug,
                 description,
-		image_url,
+		        image_url,
                 github_url,
                 demo_url,
                 featured
@@ -205,9 +211,9 @@ if ($method === "POST" && $uri === "/api/projects") {
 
         $stmt->execute([
             $data["title"],
-            $data["slug"],
+            $slug,
             $data["description"],
-	    $data["image_ulr"] ?? null,
+	        $data["image_url"] ?? null,
             $data["github"] ?? null,
             $data["demo"] ?? null,
             !empty($data["featured"]) ? 1 : 0

@@ -26,10 +26,10 @@ services:
     container_name: portfolio-database
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: portfolio
-      MYSQL_USER: portfolio_user
-      MYSQL_PASSWORD: portfolio_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     
     volumes:
       - portfolio_mysql_data:/var/lib/mysql
