@@ -8,4 +8,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "public"]
+CMD ["php", "-d", "display_errors=Off", "-d", "log_errors=On", "-d", "error_log=/dev/stderr", "-d", "error_reporting=E_ALL", "-S", "0.0.0.0:8000", "-t", "public"]
