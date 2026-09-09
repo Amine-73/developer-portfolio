@@ -648,6 +648,7 @@ if ($method === "POST" && $uri === "/api/login") {
     }
 
     // Create the authenticated session ONLY after verification
+    session_regenerate_id(true);
     $_SESSION["admin_id"] = $admin["id"];
     $_SESSION["admin_email"] = $admin["email"];
 
@@ -704,6 +705,21 @@ function requireAdmin(): void
 */
 
 if ($method === "POST" && $uri === "/api/logout") {
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(),
+            "",
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+    }
+
     session_unset();
     session_destroy();
 
