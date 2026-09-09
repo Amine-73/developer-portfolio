@@ -654,28 +654,32 @@ if ($method === "POST" && $uri === "/api/contact") {
         exit;
     }
 
-    $stmt = $pdo->prepare(
-        "INSERT INTO contact_messages (
-            name,
-            email,
-            message
-        )
-        VALUES (?, ?, ?)"
-    );
-
-    $stmt->execute([
-        trim($data["name"]),
-        trim($data["email"]),
-        trim($data["message"])
-    ]);
-
-    http_response_code(201);
-
-    echo json_encode([
-        "message" => "Message sent successfully"
-    ]);
-
-    exit;
+        try {
+        $stmt = $pdo->prepare(
+            "INSERT INTO contact_messages (
+                name,
+                email,
+                message
+            )
+            VALUES (?, ?, ?)"
+        );
+        $stmt->execute([
+            trim($data["name"]),
+            trim($data["email"]),
+            trim($data["message"])
+        ]);
+        http_response_code(201);
+        echo json_encode([
+            "message" => "Message sent successfully"
+        ]);
+        exit;
+    } catch (PDOException $e) {
+        http_response_code(500);
+        echo json_encode([
+            "error" => "Failed to send message"
+        ]);
+        exit;
+    }
 }
 
 /*
