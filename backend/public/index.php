@@ -354,12 +354,46 @@ if (
         empty($data["description"])
     ) {
         http_response_code(400);
-
         echo json_encode([
             "error" => "Title and description are required"
         ]);
-
         exit;
+    }
+
+    if (strlen($data["title"]) > 255) {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Title must be 255 characters or fewer"
+        ]);
+        exit;
+    }
+
+    if (strlen($data["description"]) > 10000) {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Description must be 10000 characters or fewer"
+        ]);
+        exit;
+    }
+
+    foreach (["image_url", "github", "demo"] as $urlField) {
+        if (!empty($data[$urlField])) {
+            if (strlen($data[$urlField]) > 500) {
+                http_response_code(400);
+                echo json_encode([
+                    "error" => "URL fields must be 500 characters or fewer"
+                ]);
+                exit;
+            }
+
+            if (!filter_var($data[$urlField], FILTER_VALIDATE_URL)) {
+                http_response_code(400);
+                echo json_encode([
+                    "error" => ucfirst($urlField) . " must be a valid URL"
+                ]);
+                exit;
+            }
+        }
     }
 
     try {
@@ -409,17 +443,39 @@ if (
             $projectId
         ]);
 
-        if (
+                if (
             isset($data["technologies"]) &&
             is_array($data["technologies"])
         ) {
+            if (count($data["technologies"]) > 30) {
+                $pdo->rollBack();
+                http_response_code(400);
+                echo json_encode([
+                    "error" => "Maximum of 30 technologies allowed"
+                ]);
+                exit;
+            }
+
+            foreach ($data["technologies"] as $technology) {
+                if (
+                    !is_string($technology) ||
+                    trim($technology) === "" ||
+                    strlen($technology) > 100
+                ) {
+                    $pdo->rollBack();
+                    http_response_code(400);
+                    echo json_encode([
+                        "error" => "Each technology must be a non-empty string up to 100 characters"
+                    ]);
+                    exit;
+                }
+            }
+
             $deleteTechStmt = $pdo->prepare(
                 "DELETE FROM project_technologies
                  WHERE project_id = ?"
             );
-
             $deleteTechStmt->execute([$projectId]);
-
             $insertTechStmt = $pdo->prepare(
                 "INSERT INTO project_technologies (
                     project_id,
@@ -427,11 +483,10 @@ if (
                 )
                 VALUES (?, ?)"
             );
-
             foreach ($data["technologies"] as $technology) {
                 $insertTechStmt->execute([
                     $projectId,
-                    $technology
+                    trim($technology)
                 ]);
             }
         }
