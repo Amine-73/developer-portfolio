@@ -179,12 +179,46 @@ if ($method === "POST" && $uri === "/api/projects") {
         empty($data["description"])
     ) {
         http_response_code(400);
-
         echo json_encode([
             "error" => "Title, slug and description are required"
         ]);
-
         exit;
+    }
+
+    if (strlen($data["title"]) > 255) {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Title must be 255 characters or fewer"
+        ]);
+        exit;
+    }
+
+    if (strlen($data["description"]) > 10000) {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Description must be 10000 characters or fewer"
+        ]);
+        exit;
+    }
+
+    foreach (["image_url", "github", "demo"] as $urlField) {
+        if (!empty($data[$urlField])) {
+            if (strlen($data[$urlField]) > 500) {
+                http_response_code(400);
+                echo json_encode([
+                    "error" => "URL fields must be 500 characters or fewer"
+                ]);
+                exit;
+            }
+
+            if (!filter_var($data[$urlField], FILTER_VALIDATE_URL)) {
+                http_response_code(400);
+                echo json_encode([
+                    "error" => ucfirst($urlField) . " must be a valid URL"
+                ]);
+                exit;
+            }
+        }
     }
 
     $slug = strtolower(trim($data["slug"]));
@@ -192,6 +226,14 @@ if ($method === "POST" && $uri === "/api/projects") {
     $slug = preg_replace('/[^a-z0-9-]/', '', $slug);
     $slug = preg_replace('/-+/', '-', $slug);
     $slug = trim($slug, '-');
+
+    if ($slug === "") {
+        http_response_code(400);
+        echo json_encode([
+            "error" => "Slug must contain at least one letter or number"
+        ]);
+        exit;
+    }
 
     try {
         $pdo->beginTransaction();
@@ -225,6 +267,15 @@ if ($method === "POST" && $uri === "/api/projects") {
             isset($data["technologies"]) &&
             is_array($data["technologies"])
         ) {
+            if (count($data["technologies"]) > 30) {
+                $pdo->rollBack();
+                http_response_code(400);
+                echo json_encode([
+                    "error" => "Maximum of 30 technologies allowed"
+                ]);
+                exit;
+            }
+
             $technologyStmt = $pdo->prepare(
                 "INSERT INTO project_technologies (
                     project_id,
@@ -232,11 +283,23 @@ if ($method === "POST" && $uri === "/api/projects") {
                 )
                 VALUES (?, ?)"
             );
-
             foreach ($data["technologies"] as $technology) {
+                if (
+                    !is_string($technology) ||
+                    trim($technology) === "" ||
+                    strlen($technology) > 100
+                ) {
+                    $pdo->rollBack();
+                    http_response_code(400);
+                    echo json_encode([
+                        "error" => "Each technology must be a non-empty string up to 100 characters"
+                    ]);
+                    exit;
+                }
+
                 $technologyStmt->execute([
                     $projectId,
-                    $technology
+                    trim($technology)
                 ]);
             }
         }
