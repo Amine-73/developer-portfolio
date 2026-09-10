@@ -1,11 +1,14 @@
-FROM php:8.3-cli
+FROM php:8.3-fpm
 
-WORKDIR /app
+WORKDIR /var/www/html
 
 RUN docker-php-ext-install pdo pdo_mysql
 
 COPY . .
+COPY php.ini /usr/local/etc/php/conf.d/99-custom.ini
 
-EXPOSE 8000
+RUN chown -R www-data:www-data /var/www/html
 
-CMD ["php", "-d", "display_errors=Off", "-d", "log_errors=On", "-d", "error_log=/dev/stderr", "-d", "error_reporting=E_ALL", "-S", "0.0.0.0:8000", "-t", "public"]
+EXPOSE 9000
+
+CMD ["php-fpm"]

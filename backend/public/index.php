@@ -8,7 +8,8 @@ session_set_cookie_params([
 
 session_start();
 
-header("Access-Control-Allow-Origin: http://localhost:3000");
+$allowedOrigin = getenv("CORS_ALLOWED_ORIGIN") ?: "http://localhost:3000";
+header("Access-Control-Allow-Origin: " . $allowedOrigin);
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Credentials: true");

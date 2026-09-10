@@ -12,7 +12,7 @@ type Project = {
 
 async function getProjects(): Promise<Project[]> {
   const response = await fetch(
-    "http://backend:8000/api/projects",
+    `${process.env.INTERNAL_API_URL}/api/projects`,
     {
       cache: "no-store",
     }

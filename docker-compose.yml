@@ -15,9 +15,12 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
     container_name: portfolio-backend
     ports:
       - "8000:8000"
+    environment:
+      CORS_ALLOWED_ORIGIN: http://localhost:3000
     volumes:
       - ./backend:/app
 

@@ -23,7 +23,7 @@ export default async function ProjectPage({
   const { slug } = await params;
 
   const response = await fetch(
-  `http://backend:8000/api/projects/${slug}`,
+  `${process.env.INTERNAL_API_URL}/api/projects/${slug}`,
   {
     cache: "no-store",
   }
