@@ -4,3 +4,5 @@
 .env.*.local
 .env.prod
 cookies.txt
+backend/vendor/
+backend/.phpunit.result.cache

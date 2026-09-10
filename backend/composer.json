@@ -1,0 +1,8 @@
+{
+    "name": "amine/developer-portfolio-backend",
+    "description": "Backend API tests for developer-portfolio",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^11"
+    }
+}
