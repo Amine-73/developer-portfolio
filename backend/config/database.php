@@ -1,9 +1,16 @@
 <?php
 
-$host = "database";
-$dbname = "portfolio";
-$username = "portfolio_user";
-$password = "portfolio_password";
+$host = getenv("MYSQL_HOST") ?: "database";
+$dbname = getenv("MYSQL_DATABASE") ?: "portfolio";
+$username = getenv("MYSQL_USER") ?: "portfolio_user";
+$password = getenv("MYSQL_PASSWORD");
+
+if (!$password) {
+    throw new RuntimeException(
+        "MYSQL_PASSWORD environment variable is not configured"
+    );
+}
+
 
 try {
     $pdo = new PDO(
@@ -18,5 +25,5 @@ try {
     );
 
 } catch (PDOException $e) {
-    die("Database connection failed: " . $e->getMessage());
+    die("Database connection failed");
 }

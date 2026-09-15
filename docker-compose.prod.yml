@@ -20,7 +20,10 @@ services:
     restart: unless-stopped
     environment:
       CORS_ALLOWED_ORIGIN: ${CORS_ALLOWED_ORIGIN}
-
+      MYSQL_HOST: database
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
   nginx:
     image: nginx:stable-alpine
     container_name: portfolio-nginx
