@@ -2,7 +2,7 @@
 
 session_set_cookie_params([
     "httponly" => true,
-    "secure" => false,
+    "secure" => true,
     "samesite" => "Lax"
 ]);
 
