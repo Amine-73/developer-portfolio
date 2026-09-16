@@ -202,7 +202,36 @@ if ($method === "POST" && $uri === "/api/projects") {
         exit;
     }
 
-    foreach (["image_url", "github", "demo"] as $urlField) {
+
+    if (!empty($data["image_url"])) {
+        if (strlen($data["image_url"]) > 500) {
+            http_response_code(400);
+            echo json_encode([
+                "error" => "Image URL must be 500 characters or fewer"
+            ]);
+            exit;
+        }
+
+        $isLocalPath = str_starts_with(
+            $data["image_url"],
+            "/projects/images/"
+        );
+
+        $isExternalUrl = filter_var(
+            $data["image_url"],
+            FILTER_VALIDATE_URL
+        );
+
+        if (!$isLocalPath && !$isExternalUrl) {
+            http_response_code(400);
+            echo json_encode([
+                "error" => "Image must be a valid local image path or URL"
+            ]);
+            exit;
+        }
+    }
+
+    foreach (["github", "demo"] as $urlField)  {
         if (!empty($data[$urlField])) {
             if (strlen($data[$urlField]) > 500) {
                 http_response_code(400);
@@ -377,7 +406,36 @@ if (
         exit;
     }
 
-    foreach (["image_url", "github", "demo"] as $urlField) {
+
+    if (!empty($data["image_url"])) {
+        if (strlen($data["image_url"]) > 500) {
+            http_response_code(400);
+            echo json_encode([
+                "error" => "Image URL must be 500 characters or fewer"
+            ]);
+            exit;
+        }
+
+        $isLocalPath = str_starts_with(
+            $data["image_url"],
+            "/projects/images/"
+        );
+
+        $isExternalUrl = filter_var(
+            $data["image_url"],
+            FILTER_VALIDATE_URL
+        );
+
+        if (!$isLocalPath && !$isExternalUrl) {
+            http_response_code(400);
+            echo json_encode([
+                "error" => "Image must be a valid local image path or URL"
+            ]);
+            exit;
+        }
+    }
+
+    foreach (["github", "demo"] as $urlField) {
         if (!empty($data[$urlField])) {
             if (strlen($data[$urlField]) > 500) {
                 http_response_code(400);

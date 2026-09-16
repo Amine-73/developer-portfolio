@@ -142,8 +142,8 @@ export default function ProjectForm({
       <input
         name="image_url"
         defaultValue={project?.image_url ?? ""}
-        type="url"
-        placeholder="https://example.com/project-image.jpg"
+        type="text"
+        placeholder="/projects/images/project-image.png"
         className="w-full border border-white/10 bg-white/[0.02] rounded-md px-4 py-3"
       />
 
