@@ -782,6 +782,41 @@ if ($method === "GET" && $uri === "/api/contact") {
 
 if ($method === "POST" && $uri === "/api/login") {
 
+    $ip = $_SERVER["REMOTE_ADDR"] ?? "unknown";
+    $rateLimitFile = "/tmp/login_" . md5($ip) . ".json";
+    $maxAttempts = 5;
+    $windowSeconds = 300;
+
+    $attempts = [];
+
+    if (file_exists($rateLimitFile)) {
+        $storedAttempts = json_decode(
+            file_get_contents($rateLimitFile),
+            true
+        );
+
+        if (is_array($storedAttempts)) {
+            $attempts = $storedAttempts;
+        }
+    }
+
+    // Keep only attempts from the last 5 minutes
+    $attempts = array_filter(
+        $attempts,
+        fn($timestamp) => time() - $timestamp < $windowSeconds
+    );
+
+    // Block after 5 failed attempts
+    if (count($attempts) >= $maxAttempts) {
+        http_response_code(429);
+
+        echo json_encode([
+            "error" => "Too many login attempts. Please try again later."
+        ]);
+
+        exit;
+    }
+
     $data = json_decode(
         file_get_contents("php://input"),
         true
@@ -790,7 +825,7 @@ if ($method === "POST" && $uri === "/api/login") {
     if (
         empty($data["email"]) ||
         empty($data["password"])
-    ) { 
+    ) {
         http_response_code(400);
 
         echo json_encode([
@@ -819,6 +854,15 @@ if ($method === "POST" && $uri === "/api/login") {
             $admin["password"]
         )
     ) {
+        // Record failed login
+        $attempts[] = time();
+
+        file_put_contents(
+            $rateLimitFile,
+            json_encode(array_values($attempts)),
+            LOCK_EX
+        );
+
         http_response_code(401);
 
         echo json_encode([
@@ -828,7 +872,12 @@ if ($method === "POST" && $uri === "/api/login") {
         exit;
     }
 
-    // Create the authenticated session ONLY after verification
+    // Successful login: clear previous failed attempts
+    if (file_exists($rateLimitFile)) {
+        unlink($rateLimitFile);
+    }
+
+    // Create authenticated session
     session_regenerate_id(true);
     $_SESSION["admin_id"] = $admin["id"];
     $_SESSION["admin_email"] = $admin["email"];
