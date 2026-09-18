@@ -127,17 +127,6 @@ if (
         exit;
     }
 
-    // $project = [
-    //     "id" => (int) $rows[0]["id"],
-    //     "title" => $rows[0]["title"],
-    //     "slug" => $rows[0]["slug"],
-    //     "description" => $row["description"],
-    //     "image_url" => $row["image_url"],
-    //     "github" => $row["github_url"],
-    //     "demo" => $rows[0]["demo_url"],
-    //     "featured" => (bool) $rows[0]["featured"],
-    //     "technologies" => []
-    // ];
     $project = [
         "id" => (int) $rows[0]["id"],
         "title" => $rows[0]["title"],
@@ -881,7 +870,7 @@ if ($method === "POST" && $uri === "/api/login") {
     session_regenerate_id(true);
     $_SESSION["admin_id"] = $admin["id"];
     $_SESSION["admin_email"] = $admin["email"];
-
+    $_SESSION["last_activity"] = time();
     echo json_encode([
         "message" => "Login successful",
         "admin" => [
@@ -917,6 +906,8 @@ if ($method === "GET" && $uri === "/api/me") {
 
 function requireAdmin(): void
 {
+    $sessionTimeout = 1800; // 30 minutes
+
     if (empty($_SESSION["admin_id"])) {
         http_response_code(401);
 
@@ -926,6 +917,24 @@ function requireAdmin(): void
 
         exit;
     }
+
+    if (
+        isset($_SESSION["last_activity"]) &&
+        time() - $_SESSION["last_activity"] > $sessionTimeout
+    ) {
+        $_SESSION = [];
+        session_destroy();
+
+        http_response_code(401);
+
+        echo json_encode([
+            "error" => "Session expired"
+        ]);
+
+        exit;
+    }
+
+    $_SESSION["last_activity"] = time();
 }
 
 /*
