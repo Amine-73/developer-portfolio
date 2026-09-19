@@ -904,6 +904,28 @@ if ($method === "GET" && $uri === "/api/me") {
     exit;
 }
 
+function destroySession(): void
+{
+    $_SESSION = [];
+
+    if (ini_get("session.use_cookies")) {
+        $params = session_get_cookie_params();
+
+        setcookie(
+            session_name(),
+            "",
+            time() - 42000,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+    }
+
+    session_unset();
+    session_destroy();
+}
+
 function requireAdmin(): void
 {
     $sessionTimeout = 1800; // 30 minutes
@@ -922,8 +944,7 @@ function requireAdmin(): void
         isset($_SESSION["last_activity"]) &&
         time() - $_SESSION["last_activity"] > $sessionTimeout
     ) {
-        $_SESSION = [];
-        session_destroy();
+        destroySession();
 
         http_response_code(401);
 
@@ -944,23 +965,7 @@ function requireAdmin(): void
 */
 
 if ($method === "POST" && $uri === "/api/logout") {
-    $_SESSION = [];
-
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(
-            session_name(),
-            "",
-            time() - 42000,
-            $params["path"],
-            $params["domain"],
-            $params["secure"],
-            $params["httponly"]
-        );
-    }
-
-    session_unset();
-    session_destroy();
+    destroySession();
 
     echo json_encode([
         "message" => "Logged out successfully"
